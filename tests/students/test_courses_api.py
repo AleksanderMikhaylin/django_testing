@@ -63,12 +63,25 @@ def test_filter_by_id(client, course_factory):
     i = 5
 
     # Act
-    response = client.get('/api/v1/courses/', {'id': courses[i].id, 'name': courses[i].name},)
+    response = client.get('/api/v1/courses/', data={'id': courses[i].id},)
 
     # Assert
-    data = response.json
     assert response.status_code == 200
     assert courses[i].id == response.json()[0]['id']
+
+
+@pytest.mark.django_db
+def test_filter_by_name(client, course_factory):
+    # Arrange
+    courses = course_factory(_quantity=9)
+    i = 5
+
+    # Act
+    response = client.get('/api/v1/courses/', data={'name': courses[i].name},)
+
+    # Assert
+    assert response.status_code == 200
+    assert courses[i].name == response.json()[0]['name']
 
 
 @pytest.mark.django_db
@@ -84,7 +97,7 @@ def test_create_course(client):
     # Assert
     assert response1.status_code == 201
     assert Course.objects.count() == count + 1
-    assert response2.status_code == 200
+    assert response1.data['name'] == 'Вы устроитесь на работу'
 
 
 @pytest.mark.django_db
